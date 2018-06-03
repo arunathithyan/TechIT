@@ -1,0 +1,48 @@
+package techit.model.dao.jpa;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import techit.model.Ticket;
+import techit.model.Unit;
+
+import techit.model.User;
+import techit.model.dao.TicketDao;
+import techit.model.dao.UnitDao;
+import techit.model.dao.UserDao;
+
+@Repository
+public class UnitDaoImpl implements UnitDao {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Override
+    public Unit getUnit(Long id) {
+        return entityManager.find(Unit.class, id);
+    }
+
+    @Override
+    public List<Unit> getUnits() {
+        return entityManager.createQuery("from Unit order by id", Unit.class)
+                .getResultList();
+    }
+    
+    @Override
+    public List<Unit> getUnits(User user) {
+        return entityManager.createQuery("select t from Unit t join t.supervisors tt where tt =:user", Unit.class)
+                .setParameter("user", user)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional
+    public Unit saveUnit(Unit unit) {
+        return entityManager.merge(unit);
+    }
+
+}
